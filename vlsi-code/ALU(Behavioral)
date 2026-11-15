@@ -1,0 +1,108 @@
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+
+entity ALU is
+    Port ( A : in  STD_LOGIC_VECTOR (3 downto 0);
+           B : in  STD_LOGIC_VECTOR (3 downto 0);
+           SEL : in  STD_LOGIC_VECTOR (2 downto 0);
+           RESULT : out  STD_LOGIC_VECTOR (3 downto 0));
+end ALU;
+
+architecture Behavioral of ALU is
+
+begin
+
+process(A,B,SEl)
+	begin
+		case SEL is
+			
+			when "000" => RESULT <= A+B;
+			when "001" => RESULT <= A-B;
+			when "010" => RESULT <= A+"0001";
+			when "011" => RESULT <= A-"0001";
+			when "100" => RESULT <= A AND B;
+			when "101" => RESULT <= A OR B;
+			when "110" => RESULT <= A XOR B;
+			when "111" => RESULT <= NOT A;
+			when others => RESULT <= "0000";
+			
+			end case;
+		end process;
+end Behavioral;
+
+
+
+
+
+
+
+
+
+
+ALU TB(Behavioral)
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+ 
+ENTITY ALU_tb IS
+END ALU_tb;
+ 
+ARCHITECTURE behavior OF ALU_tb IS 
+ 
+    -- Component Declaration for the Unit Under Test (UUT)
+ 
+    COMPONENT ALU
+    PORT(
+         A : IN  std_logic_vector(3 downto 0);
+         B : IN  std_logic_vector(3 downto 0);
+         SEL : IN  std_logic_vector(2 downto 0);
+         RESULT : OUT  std_logic_vector(3 downto 0)
+        );
+    END COMPONENT;
+    
+
+   --Inputs
+   signal A : std_logic_vector(3 downto 0) := (others => '0');
+   signal B : std_logic_vector(3 downto 0) := (others => '0');
+   signal SEL : std_logic_vector(2 downto 0) := (others => '0');
+
+ 	--Outputs
+   signal RESULT : std_logic_vector(3 downto 0);
+
+ 
+BEGIN
+ 
+	-- Instantiate the Unit Under Test (UUT)
+   uut: ALU PORT MAP (
+          A => A,
+          B => B,
+          SEL => SEL,
+          RESULT => RESULT
+        );
+
+
+
+   -- Stimulus process
+   stim_proc: process
+   begin
+			
+			A<="0101";
+			B<="0011";
+			
+			SEL <="000";wait for 10 ns;
+			SEL <="001";wait for 10 ns;
+			SEL <="010";wait for 10 ns;
+			SEL <="011";wait for 10 ns;
+			SEL <="100";wait for 10 ns;
+			SEL <="101";wait for 10 ns;
+			SEL <="110";wait for 10 ns;
+			SEL <="111";wait for 10 ns;
+
+
+      wait;
+   end process;
+
+END;
+
+
