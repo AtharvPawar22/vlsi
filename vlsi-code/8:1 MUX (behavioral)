@@ -1,0 +1,110 @@
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity mux8to1 is
+    Port (
+        I : in STD_LOGIC_VECTOR (7 downto 0);
+        S : in STD_LOGIC_VECTOR (2 downto 0);
+        Y : out STD_LOGIC
+    );
+end mux8to1;
+
+architecture Behavioral of mux8to1 is
+begin
+
+    process(I, S)
+    begin
+        case S is
+            when "000" => Y <= I(0);
+            when "001" => Y <= I(1);
+            when "010" => Y <= I(2);
+            when "011" => Y <= I(3);
+            when "100" => Y <= I(4);
+            when "101" => Y <= I(5);
+            when "110" => Y <= I(6);
+            when "111" => Y <= I(7);
+            when others => Y <= '0';
+        end case;
+    end process;
+
+end Behavioral;
+
+
+
+
+
+
+
+
+
+
+
+
+
+8:1 MUX_tb
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+ 
+ 
+ENTITY mux8to1_tb IS
+END mux8to1_tb;
+ 
+ARCHITECTURE behavior OF mux8to1_tb IS 
+ 
+    -- Component Declaration for the Unit Under Test (UUT)
+ 
+    COMPONENT mux8to1
+    PORT(
+         I : IN  std_logic_vector(7 downto 0);
+         S : IN  std_logic_vector(2 downto 0);
+         Y : OUT  std_logic
+        );
+    END COMPONENT;
+    
+
+   --Inputs
+   signal I : std_logic_vector(7 downto 0) := (others => '0');
+   signal S : std_logic_vector(2 downto 0) := (others => '0');
+
+ 	--Outputs
+   signal Y : std_logic;
+ 
+ 
+BEGIN
+ 
+	-- Instantiate the Unit Under Test (UUT)
+   uut: mux8to1 PORT MAP (
+          I => I,
+          S => S,
+          Y => Y
+        );
+
+ 
+
+
+
+
+
+   -- Stimulus process
+   stim_proc: process
+   begin
+	
+		I <= "10101010";
+		
+		S<= "000";wait for 10ns;
+		S<= "001";wait for 10ns;
+		S<= "010";wait for 10ns;
+		S<= "011";wait for 10ns;
+		S<= "100";wait for 10ns;
+		S<= "101";wait for 10ns;
+		S<= "110";wait for 10ns;
+		S<= "111";wait for 10ns;
+
+      wait;
+   end process;
+
+END;
+
+
+
