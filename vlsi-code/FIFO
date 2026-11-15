@@ -1,0 +1,226 @@
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity STD_FIFO is
+    Generic (
+        DATA_WIDTH : positive := 8;
+        FIFO_DEPTH : positive := 8
+    );
+
+    Port (
+        CLK     : in  STD_LOGIC;
+        RST     : in  STD_LOGIC;
+        WriteEn : in  STD_LOGIC;
+        DataIn  : in  STD_LOGIC_VECTOR(DATA_WIDTH-1 downto 0);
+        ReadEn  : in  STD_LOGIC;
+        DataOut : out STD_LOGIC_VECTOR(DATA_WIDTH-1 downto 0);
+        Empty   : out STD_LOGIC;
+        Full    : out STD_LOGIC
+    );
+end STD_FIFO;
+
+architecture Behavioral of STD_FIFO is
+
+    type FIFO_Memory is array (0 to FIFO_DEPTH-1)
+        of STD_LOGIC_VECTOR(DATA_WIDTH-1 downto 0);
+
+begin
+
+    fifo_proc: process(CLK)
+
+        variable Memory : FIFO_Memory;
+        variable Head : integer range 0 to FIFO_DEPTH-1 := 0;
+        variable Tail : integer range 0 to FIFO_DEPTH-1 := 0;
+        variable Count : integer range 0 to FIFO_DEPTH := 0;
+
+
+    begin
+
+        if rising_edge(CLK) then
+
+            if RST = '1' then
+
+                Head := 0;
+                Tail := 0;
+                Count := 0;
+
+                DataOut <= (others => '0');
+                Empty <= '1';
+                Full <= '0';
+
+            else
+
+                -- READ OPERATION
+                if ReadEn = '1' and Count > 0 then
+
+                    DataOut <= Memory(Head);
+
+                    Head := (Head + 1) mod FIFO_DEPTH;
+                    Count := Count - 1;
+
+                end if;
+
+                -- WRITE OPERATION
+                if WriteEn = '1' and Count < FIFO_DEPTH then
+
+                    Memory(Tail) := DataIn;
+
+                    Tail := (Tail + 1) mod FIFO_DEPTH;
+                    Count := Count + 1;
+
+                end if;
+
+
+                -- FIFO STATUS
+                if Count = 0 then
+                    Empty <= '1';
+                else
+                    Empty <= '0';
+                end if;
+
+                if Count = FIFO_DEPTH then
+                    Full <= '1';
+                else
+                    Full <= '0';
+                end if;
+
+            end if;
+
+        end if;
+
+    end process;
+
+end Behavioral;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+FIFO_tb
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+
+ENTITY STD_FIFO_tb IS
+END STD_FIFO_tb;
+
+ARCHITECTURE behavior OF STD_FIFO_tb IS
+    COMPONENT STD_FIFO
+        GENERIC (
+            DATA_WIDTH : positive := 8;
+            FIFO_DEPTH : positive := 8
+        );
+        PORT (
+
+            CLK     : IN  std_logic;
+            RST     : IN  std_logic;
+            WriteEn : IN  std_logic;
+            DataIn  : IN  std_logic_vector(DATA_WIDTH-1 downto 0);
+            ReadEn  : IN  std_logic;
+            DataOut : OUT std_logic_vector(DATA_WIDTH-1 downto 0);
+            Empty   : OUT std_logic;
+            Full    : OUT std_logic
+        );
+    END COMPONENT;
+
+    signal CLK     : std_logic := '0';
+    signal RST     : std_logic := '0';
+    signal WriteEn : std_logic := '0';
+    signal DataIn  : std_logic_vector(7 downto 0) := (others => '0');
+    signal ReadEn  : std_logic := '0';
+
+    signal DataOut : std_logic_vector(7 downto 0);
+    signal Empty   : std_logic;
+    signal Full    : std_logic;BEGIN
+
+    uut: STD_FIFO
+        PORT MAP (
+            CLK     => CLK,
+            RST     => RST,
+            WriteEn => WriteEn,
+            DataIn  => DataIn,
+            ReadEn  => ReadEn,
+            DataOut => DataOut,
+            Empty   => Empty,
+            Full    => Full
+        );
+
+    -- Clock generation
+    CLK <= NOT CLK AFTER 10 ns;
+
+    -- Testbench stimulus
+    stim_proc: process
+    begin
+
+        -- Reset
+        RST <= '1';
+        wait for 20 ns;
+        RST <= '0';
+
+        -- Write first data
+        WriteEn <= '1';
+        DataIn <= "10101010";
+        wait for 20 ns;
+
+        -- Write second data
+        DataIn <= "00001111";
+        wait for 20 ns;
+        -- Write third data
+        DataIn <= "11001100";
+        wait for 20 ns;
+
+        -- Stop writing
+        WriteEn <= '0';
+        wait for 20 ns;
+
+        -- Read first data
+        ReadEn <= '1';
+        wait for 20 ns;
+
+        -- Read second data
+        wait for 20 ns;
+
+        -- Read third data
+        wait for 20 ns;
+
+        -- Stop reading
+        ReadEn <= '0';
+        wait;
+
+    end process;
+
+END behavior;
+
