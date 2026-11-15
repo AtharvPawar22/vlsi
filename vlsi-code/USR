@@ -1,0 +1,142 @@
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity Universal_Shift_Register is
+    Port ( CLK : in  STD_LOGIC;
+           RST : in  STD_LOGIC;
+           S : in  STD_LOGIC_VECTOR (1 downto 0);
+           SL : in  STD_LOGIC;
+           SR : in  STD_LOGIC;
+           P : in  STD_LOGIC_VECTOR (3 downto 0);
+           Q : out  STD_LOGIC_VECTOR (3 downto 0));
+end Universal_Shift_Register;
+
+architecture Behavioral of Universal_Shift_Register is
+
+	signal Q_reg : STD_LOGIC_VECTOR(3 downto 0);
+
+begin
+process(CLK,RST)
+begin
+		
+	if RST = '1' then 
+		Q_reg <="0000";
+	elsif rising_edge(CLK) then 
+		
+		case S is 
+		
+				when "00" => Q_reg <= Q_reg;
+				when "01" => Q_reg <= SR & Q_reg(3 downto 1);
+				when "10" => Q_reg <= Q_reg(2 downto 0) & SL;
+				when "11" => Q_reg <= P;
+				when others => Q_reg <= Q_reg;
+			
+		end case;
+		end if;
+		end process;
+		Q <= Q_reg;
+end Behavioral;
+
+
+
+
+USR_tb
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+
+ENTITY USR_tb IS
+END USR_tb;
+ 
+ARCHITECTURE behavior OF USR_tb IS 
+ 
+    -- Component Declaration for the Unit Under Test (UUT)
+ 
+    COMPONENT Universal_Shift_Register
+    PORT(
+         CLK : IN  std_logic;
+         RST : IN  std_logic;
+         S : IN  std_logic_vector(1 downto 0);
+         SL : IN  std_logic;
+         SR : IN  std_logic;
+         P : IN  std_logic_vector(3 downto 0);
+         Q : OUT  std_logic_vector(3 downto 0)
+        );
+    END COMPONENT;
+    
+
+   --Inputs
+   signal CLK : std_logic := '0';
+   signal RST : std_logic := '0';
+   signal S : std_logic_vector(1 downto 0) := (others => '0');
+   signal SL : std_logic := '0';
+   signal SR : std_logic := '0';
+   signal P : std_logic_vector(3 downto 0) := (others => '0');
+
+ 	--Outputs
+   signal Q : std_logic_vector(3 downto 0);
+
+ 
+BEGIN
+ 
+	-- Instantiate the Unit Under Test (UUT)
+   uut: Universal_Shift_Register PORT MAP (
+          CLK => CLK,
+          RST => RST,
+          S => S,
+          SL => SL,
+          SR => SR,
+          P => P,
+          Q => Q
+        );
+
+
+   -- Stimulus process
+   stim_proc: process
+   begin		
+
+        -- Reset
+        RST <= '1';
+        wait for 100 ns;
+        RST <= '0';
+
+        -- Parallel Load
+        P <= "1100";
+        S <= "11";
+        wait for 100 ns;
+		  
+         -- Hold
+        S <= "00";
+        wait for 100 ns;
+
+        -- Shift Right
+        SR <= '1';
+        S <= "01";
+        wait for 100 ns;
+
+        -- Shift Left
+        SL <= '0';
+        S <= "10";
+        wait for 100 ns;
+
+        -- Parallel Load
+        P <= "1010";
+        S <= "11";
+        wait for 100 ns;
+
+        -- Shift Right
+        SR <= '0';
+        S <= "01";
+        wait for 100 ns;
+
+        -- Shift Left
+        SL <= '1';
+        S <= "10";
+        wait for 100 ns;
+
+      wait;
+   end process;
+
+END;
+
+
